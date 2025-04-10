@@ -1,70 +1,156 @@
-# Getting Started with Create React App
+# 📘 Documentation du Projet Fullstack avec CI/CD
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+## 1. 📌 Présentation Générale
+Ce projet est une application **fullstack** développée avec :
 
-In the project directory, you can run:
+- **Backend** : Node.js (Express) + MySQL  
+- **Frontend** : React.js  
+- **Infrastructure** : Docker + Docker Compose  
+- **CI/CD** : GitHub Actions
 
-### `npm start`
+Elle permet la gestion d’utilisateurs avec un système **CRUD** complet, des **tests automatisés**, et une **pipeline CI/CD fonctionnelle**.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 2. 🏗️ Architecture Technique
 
-### `npm test`
+### 2.1 Structure des Fichiers
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Backend** (`/backend`)  
+• `Dockerfile` – Configuration du conteneur  
+• `server.js` – Point d’entrée du serveur  
+• `user.test.js` – Tests unitaires  
+• `.env` – Variables d’environnement  
 
-### `npm run build`
+**Frontend** (`/frontend`)  
+• `Dockerfile` – Build de production  
+• `index.js` – Fichier racine React  
+• `nginx.conf` – Config NGINX  
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Racine**  
+• `docker-compose.yml` – Orchestration  
+• `.github/workflows/ci.yml` – Pipeline GitHub Actions  
+• `.gitignore`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2.2 🧬 Schéma d'Architecture
+```mermaid
+graph TD
+    A[React Frontend] -->|Axios| B[Express API]
+    B -->|MySQL2| C[(Base de Données MySQL)]
+    D[GitHub Actions] -->|CI/CD| E[Docker Hub]
+```
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 3. ⚙️ Configuration Requise
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 3.1 🔧 Prérequis
+- Docker ≥ 20.x  
+- Node.js ≥ 18.x  
+- Git
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 3.2 🔐 Variables d’Environnement (`.env`)
+```env
+DB_HOST=mysql
+DB_USER=root
+DB_PASSWORD=nouveaupass
+DB_NAME=fullstack_db
+DB_PORT=3306
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 4. 🚀 Installation et Exécution
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4.1 🧪 Développement Local
+```bash
+# Lancer les conteneurs
+docker-compose up --build
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Frontend : [http://localhost:3000](http://localhost:3000)  
+- Backend : [http://localhost:5000/api/users](http://localhost:5000/api/users)
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 5. 🧪 Tests Automatisés
 
-### Analyzing the Bundle Size
+### 5.1 ✅ Tests backend
+| Type        | Outils        |
+|-------------|---------------|
+| Unitaire    | Mocha / Chai  |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 5.2 ▶️ Lancer les tests
+```bash
+docker exec -it <backend-container> npm test
+```
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 6. 🔁 Pipeline CI/CD
 
-### Advanced Configuration
+### 6.1 ⚙️ GitHub Actions
+Le workflow est défini dans `.github/workflows/ci.yml`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```yaml
+name: CI/CD
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npm test
 
-### Deployment
+  deploy:
+    needs: test
+    steps:
+      - uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ismaillaa/fullstack:latest
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 7. 🧠 Décisions Techniques
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 7.1 🧱 Choix Architecturaux
+- Frontend/Backend séparés et dockerisés  
+- Multi-stage build pour React  
+- Variables d’environnement sécurisées avec `.env`
+
+### 7.2 ⚡ Optimisations
+- Docker volume pour la BDD  
+- Tests indépendants de la base locale  
+- Gestion d’erreurs centralisée
+
+---
+
+## 8. ☁️ Déploiement
+
+### 8.1 🔨 Build & Push Docker
+```bash
+# Build des images
+docker-compose build
+
+# Push (si configuré avec Docker Hub)
+docker-compose push
+```
+
+---
+
+## 🔗 Liens
+
+- [📁 Repo GitHub](https://github.com/ismaillaa/fullstack-app)
+- [🐳 Docker Hub](https://hub.docker.com/u/ismaillaa)
